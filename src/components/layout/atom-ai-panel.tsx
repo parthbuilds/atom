@@ -378,7 +378,7 @@ export function AtomAiPanel({
 
       {/* Panel */}
       <aside
-        className="fixed top-0 right-0 h-screen w-[380px] max-w-[calc(100vw-16px)] bg-background border-l border-border/60 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200"
+        className="fixed top-0 right-0 h-screen w-[380px] max-w-[calc(100vw-16px)] bg-background border-l border-border/60 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200 overflow-hidden"
         aria-label="Proton AI Assistant"
       >
         {/* ── Header ── */}
@@ -441,7 +441,7 @@ export function AtomAiPanel({
           {messages.map(m => {
             const isUser = m.sender === "user";
             return (
-              <div key={m.id} className={`flex gap-2 ${isUser ? "justify-end" : "justify-start"}`}>
+              <div key={m.id} className={`flex gap-2 min-w-0 ${isUser ? "justify-end" : "justify-start"}`}>
                 {/* Assistant avatar */}
                 {!isUser && (
                   <div className="size-6 rounded-md bg-primary/8 border border-primary/15 flex items-center justify-center shrink-0 mt-0.5 overflow-hidden">
@@ -449,9 +449,9 @@ export function AtomAiPanel({
                   </div>
                 )}
 
-                <div className={`max-w-[86%] flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}>
+                <div className={`max-w-[86%] min-w-0 flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}>
                   {/* Bubble */}
-                  <div className={`rounded-2xl px-3.5 py-2.5 ${
+                  <div className={`rounded-2xl px-3.5 py-2.5 break-words overflow-hidden ${
                     isUser
                       ? "bg-primary text-primary-foreground rounded-tr-sm"
                       : "bg-muted/50 border border-border/40 text-foreground rounded-tl-sm"
@@ -494,7 +494,7 @@ export function AtomAiPanel({
 
                     {/* Message text */}
                     {isUser ? (
-                      <span className="text-[13px] leading-relaxed">{m.text}</span>
+                      <span className="text-[13px] leading-relaxed break-words">{m.text}</span>
                     ) : (
                       <FormattedMessage text={m.text} />
                     )}
