@@ -62,26 +62,26 @@ const SessionContextReact = createContext<SessionState>({
 });
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return !!localStorage.getItem("atom_active_session");
-    }
-    return false;
-  });
+  // Always start with defaultSession so server & client render identical HTML (fixes hydration mismatch).
+  // localStorage is read in useEffect after hydration.
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentSession, setCurrentSession] = useState<SessionContext>(defaultSession);
+  const [hydrated, setHydrated] = useState(false);
 
-  const [currentSession, setCurrentSession] = useState<SessionContext>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("atom_active_session");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          // fallback
-        }
+  // Hydrate from localStorage on client after mount
+  useEffect(() => {
+    const saved = localStorage.getItem("atom_active_session");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setCurrentSession(parsed);
+        setIsAuthenticated(true);
+      } catch {
+        // ignore corrupt data
       }
     }
-    return defaultSession;
-  });
+    setHydrated(true);
+  }, []);
 
   // Hydrate from real server database session on mount
   useEffect(() => {
