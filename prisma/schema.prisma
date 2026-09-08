@@ -1,0 +1,260 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Organization {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  industry      String
+  city          String?
+  teamSize      String?
+  themeTokens   String?         // JSON string of CSS variable tokens
+  creditBalance Int             @default(5000)
+  hasOwnWebsite Boolean         @default(true)
+  websiteUrl    String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  users         User[]
+  automations   OrgAutomation[]
+  leads         Lead[]
+  transactions  Transaction[]
+  funnels       Funnel[]
+  callLogs      CallLog[]
+  voiceConfig   VoiceAgentConfig?
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  projects      Project[]
+}
+
+model User {
+  id        String       @id @default(cuid())
+  orgId     String
+  name      String
+  email     String       @unique
+  role      String       @default("CLIENT_OWNER") // SUPER_ADMIN | AGENCY_STAFF | CLIENT_OWNER | CLIENT_TEAM_MEMBER | AUTOMATION_VIEWER
+  avatarUrl String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  auditLogs AuditLog[]
+}
+
+model Permission {
+  id      String  @id @default(cuid())
+  role    String
+  action  String  // e.g. billing:write, automations:toggle, leads:export, etc.
+  allowed Boolean @default(true)
+
+  @@unique([role, action])
+}
+
+model AutomationCatalog {
+  id                 String          @id @default(cuid())
+  name               String
+  slug               String          @unique
+  category           String          // WhatsApp, Voice AI, CRM, Funnel
+  setupPriceInr      Int
+  monthlyPriceInr    Int
+  estimatedSetupDays Int             @default(1)
+  description        String
+  recommendedTags    String          // JSON array of matching tags e.g. ["missed calls", "slow follow-up"]
+  n8nTemplateKey     String?
+  activeCount        Int             @default(0)
+  createdAt          DateTime        @default(now())
+
+  orgAutomations     OrgAutomation[]
+}
+
+model OrgAutomation {
+  id              String            @id @default(cuid())
+  orgId           String
+  automationId    String
+  status          String            @default("ACTIVE") // ACTIVE | PAUSED
+  executionCount  Int               @default(0)
+  creditsConsumed Int               @default(0)
+  lastRunAt       DateTime?
+  n8nWorkflowId   String?
+  activatedAt     DateTime          @default(now())
+
+  org             Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  catalogItem     AutomationCatalog @relation(fields: [automationId], references: [id])
+  leads           Lead[]
+
+  @@unique([orgId, automationId])
+}
+
+model Lead {
+  id                String         @id @default(cuid())
+  orgId             String
+  automationId      String?
+  name              String
+  phone             String
+  email             String?
+  status            String         @default("NEW") // NEW | CONTACTED | QUALIFIED | BOOKED | WON | LOST
+  relationshipStage String         @default("FIRST_CONTACT") // FIRST_CONTACT | WARMED | INTERESTED | BOOKED
+  tags              String?        // JSON array of strings
+  notes             String?
+  source            String         @default("WhatsApp Bot")
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  org               Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  automation        OrgAutomation? @relation(fields: [automationId], references: [id])
+  activities        LeadActivity[]
+  callLogs          CallLog[]
+}
+
+model LeadActivity {
+  id        String   @id @default(cuid())
+  leadId    String
+  type      String   // MESSAGE | CALL | BOOKING | STATUS_CHANGE | NOTE
+  title     String
+  payload   String?  // JSON string
+  timestamp DateTime @default(now())
+
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id          String       @id @default(cuid())
+  orgId       String
+  amountInr   Int
+  type        String       // TOPUP | DEDUCTION_USAGE | DEDUCTION_RETAINER
+  description String
+  reference   String?      // Razorpay Payment ID or internal ref
+  status      String       @default("SUCCESS")
+  createdAt   DateTime     @default(now())
+
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Funnel {
+  id             String       @id @default(cuid())
+  orgId          String
+  title          String
+  templateId     String
+  publishedSlug  String       @unique
+  hasOwnWebsite  Boolean      @default(true)
+  websiteBrief   String?      // JSON string for 1-week website brief if applicable
+  status         String       @default("ACTIVE")
+  views          Int          @default(0)
+  conversions    Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model CallLog {
+  id                String       @id @default(cuid())
+  leadId            String
+  orgId             String
+  provider          String       @default("SARVAM") // SARVAM | ELEVENLABS | VAPI
+  durationSec       Int          @default(0)
+  outcome           String       // CONNECTED | NO_ANSWER | BUSY | VOICEMAIL
+  relationshipStage String       // FIRST_CONTACT | WARMED | INTERESTED | BOOKED
+  sentiment         String?      @default("POSITIVE") // POSITIVE | NEUTRAL | NEGATIVE
+  costInr           Int          @default(15)
+  actionTaken       String?      @default("APPOINTMENT_LOCKED") // APPOINTMENT_LOCKED | BROCHURE_SENT | FOLLOWUP_QUEUED | DISQUALIFIED
+  transcriptSummary String?
+  recordingUrl      String?
+  createdAt         DateTime     @default(now())
+
+  lead              Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  org               Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id                String             @id @default(cuid())
+  orgId             String
+  type              String             // WEBSITE_REQUEST | CUSTOM_SAAS | AI_AUTOMATION
+  title             String
+  description       String?
+  targetAudience    String?
+  primaryGoals      String?
+  keyFeatures       String?            // JSON string array of features
+  designPreferences String?            // e.g. "Minimalist Clean", "Dark High-Tech", etc.
+  techStack         String?            // e.g. "Next.js 14, Tailwind, Prisma, Sarvam AI"
+  referenceUrls     String?            // Inspiration URLs or Figma links
+  status            String             @default("IN_PROGRESS") // DISCOVERY | DESIGNING | DEVELOPING | AI_INTEGRATION | TESTING | LAUNCHED
+  progressPct       Int                @default(25)
+  stagingUrl        String?
+  liveUrl           String?
+  shareToken        String             @unique @default(cuid())
+  estimatedLaunch   DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  org               Organization       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  updates           ProjectUpdate[]
+  milestones        ProjectMilestone[]
+}
+
+model ProjectUpdate {
+  id           String   @id @default(cuid())
+  projectId    String
+  title        String
+  description  String
+  phase        String   // DISCOVERY | DESIGN | DEVELOPMENT | INTEGRATION | LAUNCH
+  deliverables String?  // JSON string array of deliverables
+  authorName   String   @default("Atom Engineering Team")
+  createdAt    DateTime @default(now())
+
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ProjectMilestone {
+  id        String   @id @default(cuid())
+  projectId String
+  title     String
+  status    String   @default("PENDING") // COMPLETED | IN_PROGRESS | PENDING
+  dueDate   String?
+  order     Int      @default(0)
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model VoiceAgentConfig {
+  id           String       @id @default(cuid())
+  orgId        String       @unique
+  provider     String       @default("SARVAM") // SARVAM | ELEVENLABS | VAPI
+  promptScript String
+  callingHours String       @default("10:00 AM - 07:00 PM")
+  targetStatus String       @default("NEW")
+  language     String       @default("Hindi + English (Hinglish)")
+  updatedAt    DateTime     @updatedAt
+
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String       @id @default(cuid())
+  orgId     String
+  title     String
+  message   String
+  type      String       // LEAD | LOW_BALANCE | AUTOMATION | BOOKING
+  read      Boolean      @default(false)
+  createdAt DateTime     @default(now())
+
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String        @id @default(cuid())
+  orgId     String?
+  userId    String?
+  action    String
+  details   String?       // JSON string
+  createdAt DateTime      @default(now())
+
+  org       Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
