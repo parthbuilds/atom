@@ -24,6 +24,11 @@ import {
   FileCheck,
   RefreshCw,
   Loader2,
+  MessageSquare,
+  Send,
+  AlertCircle,
+  User,
+  MessageCircle,
 } from "lucide-react";
 
 export default function ClientProjectStatusPage() {
@@ -34,6 +39,12 @@ export default function ClientProjectStatusPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [senderName, setSenderName] = useState("");
+  const [priority, setPriority] = useState("NORMAL");
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [messageSuccess, setMessageSuccess] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -43,6 +54,9 @@ export default function ClientProjectStatusPage() {
         if (res.ok) {
           const data = await res.json();
           setProject(data.project);
+          if (data.project?.directMessages) {
+            setMessages(data.project.directMessages);
+          }
         } else {
           setError("Project not found or link has expired.");
         }
@@ -50,6 +64,36 @@ export default function ClientProjectStatusPage() {
       .catch((err) => setError(err.message || "Failed to load."))
       .finally(() => setLoading(false));
   }, [token]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !token) return;
+    setSendingMessage(true);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shareToken: token,
+          content: newMessage.trim(),
+          senderName: senderName.trim() || (project?.org?.name ? `${project.org.name} Team` : "Client Partner"),
+          priority,
+          senderType: "CLIENT",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMessages((prev) => [...prev, data.message]);
+        setNewMessage("");
+        setMessageSuccess(true);
+        setTimeout(() => setMessageSuccess(false), 4000);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -75,7 +119,7 @@ export default function ClientProjectStatusPage() {
   let parsedFeatures: string[] = [];
   try {
     if (project.keyFeatures) parsedFeatures = JSON.parse(project.keyFeatures);
-  } catch {}
+  } catch { }
 
   const completedMilestones = (project.milestones || []).filter((m: any) => m.status === "COMPLETED").length;
   const totalMilestones = (project.milestones || []).length || 1;
@@ -127,7 +171,7 @@ export default function ClientProjectStatusPage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <main className="max-w-9xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* ── Hero Card ── */}
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           {/* Status pill top bar */}
@@ -199,13 +243,12 @@ export default function ClientProjectStatusPage() {
                   return (
                     <div
                       key={m.id}
-                      className={`p-3.5 rounded-xl border transition-all ${
-                        isCompleted
-                          ? "bg-emerald-50 border-emerald-200"
-                          : isInProgress
+                      className={`p-3.5 rounded-xl border transition-all ${isCompleted
+                        ? "bg-emerald-50 border-emerald-200"
+                        : isInProgress
                           ? "bg-blue-50 border-blue-300 shadow-sm"
                           : "bg-white border-slate-200 opacity-60"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="mt-0.5 shrink-0">
@@ -218,16 +261,15 @@ export default function ClientProjectStatusPage() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs font-semibold leading-snug ${
-                            isCompleted ? "text-emerald-800" : isInProgress ? "text-blue-900" : "text-slate-500"
-                          }`}>
+                          <p className={`text-xs font-semibold leading-snug ${isCompleted ? "text-emerald-800" : isInProgress ? "text-blue-900" : "text-slate-500"
+                            }`}>
                             {m.title}
                           </p>
                           <div className="flex items-center justify-between mt-1 text-[10px]">
                             <span className={
                               isCompleted ? "text-emerald-600 font-medium" :
-                              isInProgress ? "text-blue-600 font-medium" :
-                              "text-slate-400"
+                                isInProgress ? "text-blue-600 font-medium" :
+                                  "text-slate-400"
                             }>
                               {isCompleted ? "Completed ✓" : isInProgress ? "Currently in Progress" : "Upcoming Phase"}
                             </span>
@@ -288,7 +330,7 @@ export default function ClientProjectStatusPage() {
                     let deliverables: string[] = [];
                     try {
                       if (update.deliverables) deliverables = JSON.parse(update.deliverables);
-                    } catch {}
+                    } catch { }
 
                     const phaseColors: Record<string, string> = {
                       LAUNCH: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -349,6 +391,125 @@ export default function ClientProjectStatusPage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ── Client Direct Messaging Section ── */}
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/60">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                  <MessageSquare className="h-4 w-4" />
+                </span>
+                <h2 className="text-base font-bold text-slate-900">Direct Message to Agency Team</h2>
+                <Badge variant="outline" className="text-[10px] bg-white text-blue-700 border-blue-200 font-mono">
+                  Live Queue
+                </Badge>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Have a question, request changes, or need to send links? Send a message directly to your engineering team.
+              </p>
+            </div>
+            <div className="text-[11px] font-mono text-slate-400 bg-white px-3 py-1.5 rounded-lg border border-slate-200 self-start sm:self-auto">
+              Response SLA: &lt; 2 Hours
+            </div>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {/* Message Thread History */}
+            {messages.length > 0 && (
+              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                {messages.map((msg: any) => {
+                  const isAgency = msg.senderType === "AGENCY";
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col ${isAgency ? "items-start" : "items-end"}`}
+                    >
+                      <div className="flex items-center gap-2 mb-1 text-[11px] text-slate-400">
+                        <span className="font-semibold text-slate-700">{msg.senderName}</span>
+                        {isAgency && (
+                          <span className="px-1.5 py-0.2 rounded bg-blue-50 text-blue-600 text-[10px] font-mono">
+                            Agency Lead
+                          </span>
+                        )}
+                        <span>·</span>
+                        <span className="font-mono text-[10px]">{formatDate(msg.createdAt)}</span>
+                        {msg.priority === "URGENT" && (
+                          <span className="px-1.5 py-0.2 rounded bg-rose-50 text-rose-600 text-[10px] font-bold">
+                            URGENT
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        className={`max-w-xl rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
+                          isAgency
+                            ? "bg-slate-100 text-slate-800 rounded-tl-sm border border-slate-200/70"
+                            : "bg-blue-600 text-white rounded-tr-sm shadow-xs"
+                        }`}
+                      >
+                        {msg.content}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Compose Message Form */}
+            <form onSubmit={handleSendMessage} className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  placeholder="Your Name (Optional)"
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  className="px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1"
+                />
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-slate-700"
+                >
+                  <option value="NORMAL">Normal Question</option>
+                  <option value="HIGH">High Priority</option>
+                  <option value="URGENT">Urgent Blocker</option>
+                </select>
+              </div>
+              <div className="relative">
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Write your direct message, change request, or question here..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] text-slate-400">
+                  {messageSuccess && (
+                    <span className="text-emerald-600 font-medium flex items-center gap-1">
+                      <Check className="h-3.5 w-3.5" /> Message sent to team queue!
+                    </span>
+                  )}
+                </p>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={sendingMessage || !newMessage.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs gap-1.5 h-8 font-medium"
+                >
+                  {sendingMessage ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Send className="h-3.5 w-3.5" />
+                  )}
+                  Send Direct Message
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
 

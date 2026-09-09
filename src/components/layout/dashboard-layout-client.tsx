@@ -40,6 +40,7 @@ import {
   BookOpen,
   Layers,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
@@ -126,6 +127,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, minRole: "ALL" },
     { label: "CRM Leads & Pipeline", href: "/crm", icon: Users, minRole: "ALL" },
     { label: "Projects & Client Updates", href: "/projects", icon: Layers, minRole: "ALL" },
+    { label: "Messages & Client Queue", href: "/messages", icon: MessageSquare, minRole: "ALL" },
     { label: "AI Knowledge Hub", href: "/knowledge", icon: BrainCircuit, minRole: "ALL" },
     { label: "Automations", href: "/automations", icon: Cpu, minRole: "ALL" },
     { label: "Voice AI Agent", href: "/voice-agent", icon: Mic, minRole: "ALL" },

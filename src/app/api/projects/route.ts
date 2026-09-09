@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
           org: { select: { id: true, name: true, slug: true, industry: true } },
           milestones: { orderBy: { order: "asc" } },
           updates: { orderBy: { createdAt: "desc" } },
+          directMessages: { orderBy: { createdAt: "asc" } },
         },
       });
 

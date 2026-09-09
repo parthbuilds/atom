@@ -196,6 +196,23 @@ model Project {
   org               Organization       @relation(fields: [orgId], references: [id], onDelete: Cascade)
   updates           ProjectUpdate[]
   milestones        ProjectMilestone[]
+  directMessages    DirectMessage[]
+}
+
+model DirectMessage {
+  id          String   @id @default(cuid())
+  projectId   String
+  senderType  String   @default("CLIENT") // CLIENT | AGENCY
+  senderName  String
+  senderEmail String?
+  content     String
+  priority    String   @default("NORMAL") // NORMAL | HIGH | URGENT
+  queueStatus String   @default("NEW")    // NEW | IN_PROGRESS | RESOLVED
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model ProjectUpdate {
