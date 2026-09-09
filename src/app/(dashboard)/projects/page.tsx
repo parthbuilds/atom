@@ -183,19 +183,20 @@ _Sent via Atom Client Delivery Engine_`;
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div className="min-w-0 flex-1 pr-2">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Projects &amp; Client Updates</h1>
           <p className="text-xs text-muted-foreground mt-0.5 max-w-2xl">
             Track Website Requests and Custom SaaS builds, log tangible milestones, and share real-time progress updates with clients.
           </p>
         </div>
-        <div className="flex items-center gap-2.5 shrink-0 flex-nowrap">
-          <Link href="/onboarding/website" className="shrink-0">
+        <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+          <Link href="/onboarding/website" className="shrink-0 inline-flex">
             <Button
-              className="h-9 px-4 text-xs font-semibold gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs rounded-xl whitespace-nowrap transition-all"
+              className="h-10 px-5 text-xs font-semibold gap-2.5 bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm rounded-xl whitespace-nowrap shrink-0 transition-all cursor-pointer hover:shadow-md active:scale-[0.98]"
             >
-              <Plus className="h-4 w-4" /> Onboard Project
+              <Plus className="h-4 w-4 shrink-0" />
+              <span>Onboard Project</span>
             </Button>
           </Link>
           {activeProject && (
@@ -206,15 +207,17 @@ _Sent via Atom Client Delivery Engine_`;
                   setShareProject(activeProject);
                   setShowShareModal(true);
                 }}
-                className="h-9 px-4 text-xs font-semibold gap-2 border-border/90 bg-white hover:bg-muted/60 text-slate-800 shadow-xs rounded-xl whitespace-nowrap shrink-0 transition-all"
+                className="h-10 px-5 text-xs font-semibold gap-2.5 border-border/90 bg-white hover:bg-muted/60 text-slate-800 shadow-sm rounded-xl whitespace-nowrap shrink-0 transition-all cursor-pointer hover:shadow-md active:scale-[0.98]"
               >
-                <Share2 className="h-4 w-4 text-blue-600" /> Share Update
+                <Share2 className="h-4 w-4 text-blue-600 shrink-0" />
+                <span>Share Update</span>
               </Button>
               <Button
                 onClick={() => setShowUpdateModal(true)}
-                className="h-9 px-4 text-xs font-semibold gap-2 bg-blue-600 hover:bg-blue-500 text-white shadow-xs rounded-xl whitespace-nowrap shrink-0 transition-all"
+                className="h-10 px-5 text-xs font-semibold gap-2.5 bg-blue-600 hover:bg-blue-500 text-white shadow-sm rounded-xl whitespace-nowrap shrink-0 transition-all cursor-pointer hover:shadow-md active:scale-[0.98]"
               >
-                <Plus className="h-4 w-4" /> Post Update
+                <Plus className="h-4 w-4 shrink-0" />
+                <span>Post Update</span>
               </Button>
             </>
           )}
@@ -299,15 +302,17 @@ _Sent via Atom Client Delivery Engine_`;
                   <Button
                     variant="outline"
                     onClick={() => handleCopyShareLink(activeProject)}
-                    className="text-xs font-semibold gap-2 h-9 px-4 rounded-xl border-border bg-card hover:bg-muted/70 text-foreground shadow-xs"
+                    className="text-xs font-semibold gap-2 h-10 px-4.5 rounded-xl border-border bg-card hover:bg-muted/70 text-foreground shadow-sm cursor-pointer transition-all active:scale-[0.98]"
                   >
-                    {copiedLink ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                    {copiedLink ? "Link Copied!" : "Client Portal Link"}
+                    {copiedLink ? <Check className="h-4 w-4 text-emerald-500 shrink-0" /> : <Copy className="h-4 w-4 shrink-0" />}
+                    <span>{copiedLink ? "Link Copied!" : "Client Portal Link"}</span>
                   </Button>
                   {activeProject.stagingUrl && (
                     <a href={activeProject.stagingUrl} target="_blank" rel="noopener noreferrer">
-                      <Button className="text-xs font-semibold gap-1.5 h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs">
-                        <Globe className="h-4 w-4" /> Staging <ExternalLink className="h-3.5 w-3.5" />
+                      <Button className="text-xs font-semibold gap-2 h-10 px-4.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm cursor-pointer transition-all active:scale-[0.98]">
+                        <Globe className="h-4 w-4 shrink-0" />
+                        <span>Staging</span>
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                       </Button>
                     </a>
                   )}
@@ -389,9 +394,10 @@ _Sent via Atom Client Delivery Engine_`;
                   </div>
                   <Button
                     onClick={() => setShowUpdateModal(true)}
-                    className="text-xs font-semibold gap-1.5 h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-xs"
+                    className="text-xs font-semibold gap-2 h-9.5 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-sm cursor-pointer transition-all active:scale-[0.98]"
                   >
-                    <Plus className="h-4 w-4" /> Add Entry
+                    <Plus className="h-4 w-4 shrink-0" />
+                    <span>Add Entry</span>
                   </Button>
                 </div>
               </CardHeader>

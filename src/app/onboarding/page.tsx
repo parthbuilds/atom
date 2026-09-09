@@ -305,118 +305,98 @@ export default function OnboardingPage() {
       </div>
 
       {/* Top Header */}
-      <header className="relative z-20 max-w-5xl w-full mx-auto flex items-center justify-between pb-3">
-        <AtomWordmark size="md" showBadge badgeText="Autonomous Workforce" href="/" />
+      <header className="relative z-20 max-w-5xl w-full mx-auto flex items-center justify-between pb-4 pt-2">
+        <AtomWordmark size="md" href="/" />
 
-        <div className="font-synthio-mono text-xs bg-white border border-[#e2e0d8] px-3.5 py-1.5 rounded-full text-neutral-700 shadow-2xs flex items-center gap-2">
-          <span className="size-2 rounded-full bg-emerald-500" />
-          <span>Step {step} of 06 · {currentStage.title}</span>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-neutral-500 font-medium">
+            <span>Step {step} of 6</span>
+            <span className="text-neutral-300">·</span>
+            <span className="text-neutral-900 font-semibold">{currentStage.title}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            {stages.map((stage, idx) => {
+              const isActive = step === idx + 1;
+              const isDone = step > idx + 1;
+              return (
+                <button
+                  key={stage.step}
+                  type="button"
+                  title={`Step ${stage.step}: ${stage.title}`}
+                  onClick={() => idx + 1 <= step && setStep(idx + 1)}
+                  disabled={idx + 1 > step}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    isActive
+                      ? "w-8 bg-[#2d4436] cursor-default"
+                      : isDone
+                      ? "w-3 bg-[#a2caa9] hover:bg-[#86b58f] cursor-pointer"
+                      : "w-3 bg-[#e4e1d7] cursor-not-allowed"
+                  }`}
+                />
+              );
+            })}
+          </div>
         </div>
       </header>
 
-      {/* Top Progress Pills (Light Pastel Matte Colors Matching Screenshot!) */}
-      <div className="relative z-20 w-full max-w-5xl mx-auto my-3">
-        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {stages.map((stage, idx) => {
-            const isActive = step === idx + 1;
-            const isDone = step > idx + 1;
-            return (
-              <button
-                key={stage.step}
-                type="button"
-                onClick={() => idx + 1 <= step && setStep(idx + 1)}
-                className={`px-3.5 py-2 rounded-2xl text-xs font-synthio-mono transition-all shrink-0 flex items-center gap-2 border cursor-pointer ${
-                  isActive
-                    ? "bg-neutral-950 text-white border-neutral-950 shadow-md"
-                    : isDone
-                    ? "bg-[#edf5f0] text-emerald-800 border-[#cbe3d4] hover:bg-[#e4f0e9]"
-                    : "bg-white text-neutral-600 border-[#e2e0d8] hover:bg-[#faf9f5]"
-                }`}
-              >
-                <span
-                  className={`size-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    isActive
-                      ? "bg-amber-400 text-neutral-950"
-                      : isDone
-                      ? "bg-emerald-200 text-emerald-900"
-                      : "bg-[#f1ede4] text-neutral-500"
-                  }`}
-                >
-                  {isDone ? "✓" : stage.step}
-                </span>
-                <span className="font-synthio-body font-semibold text-xs">{stage.title}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main Container Card (Large White Card Matching Screenshot) */}
+      {/* Main Container Card */}
       <main className="relative z-20 w-full max-w-5xl mx-auto my-auto py-2">
         {/* ========================================================================= */}
         {/* STEP 1: BUSINESS BASICS                                                   */}
         {/* ========================================================================= */}
         {step === 1 && (
-          <div className="rounded-3xl bg-white border border-[#e2e0d8] p-6 sm:p-8 shadow-sm relative overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="rounded-2xl bg-white border border-[#e5e3dc] p-6 sm:p-8 lg:p-10 shadow-sm relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               {/* Left Column: Form & Inputs */}
-              <div className="lg:col-span-7 space-y-4">
-                {/* Header Pills (Matte Pastel Colors - No Harsh Black) */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-synthio-mono px-2.5 py-0.5 rounded-full bg-[#eff6ff] text-blue-900 border border-blue-200 font-semibold">
-                    PHASE 01 // DISCOVERY & FOUNDATION
-                  </span>
-                  <span className="text-xs font-synthio-mono text-emerald-800 font-medium bg-[#edf5f0] border border-[#cbe3d4] px-2.5 py-0.5 rounded-full">
-                    Day 1 · Setup
-                  </span>
-                  <span className="text-xs font-synthio-mono text-neutral-400">
-                    Step 01 of 06
-                  </span>
-                </div>
-
+              <div className="lg:col-span-7 space-y-6">
                 <div>
-                  <h2 className="font-synthio-heading text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
-                    Organization DNA & Industry Setup
-                  </h2>
-                  <p className="text-xs text-neutral-600 mt-0.5 leading-relaxed">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f3f0e8] border border-[#e4decb] text-[11px] font-medium text-[#595343] mb-2">
+                    <span className="size-1.5 rounded-full bg-[#2d4436]" />
+                    <span>Phase 01 · Discovery & Foundation</span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
+                    Organization & Industry Setup
+                  </h1>
+                  <p className="text-sm text-neutral-600 mt-1 leading-relaxed">
                     Atom calibrates voice cadence, WhatsApp qualification logic, and appointment funnels to your exact industry.
                   </p>
                 </div>
 
                 {/* Input Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-medium text-neutral-700 block mb-1">
-                      Business / Company Name *
+                    <label className="text-xs font-semibold text-neutral-800 block mb-1.5">
+                      Business / Company Name <span className="text-red-500">*</span>
                     </label>
                     <Input
                       placeholder="e.g. Apex Realty or Radiant Clinic"
                       value={quiz.businessName}
                       onChange={(e) => setQuiz({ ...quiz, businessName: e.target.value })}
-                      className="h-9 text-xs bg-[#faf9f5] border-[#e2e0d8] rounded-xl focus-visible:ring-blue-500"
+                      className="h-10 text-sm bg-[#faf9f5] border-[#e2e0d8] rounded-xl focus-visible:ring-1 focus-visible:ring-[#2d4436] focus-visible:border-[#2d4436] shadow-2xs"
                       autoFocus
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-neutral-700 block mb-1">
+                    <label className="text-xs font-semibold text-neutral-800 block mb-1.5">
                       City / Territory
                     </label>
                     <Input
                       placeholder="e.g. Mumbai, Bengaluru, Delhi NCR"
                       value={quiz.city}
                       onChange={(e) => setQuiz({ ...quiz, city: e.target.value })}
-                      className="h-9 text-xs bg-[#faf9f5] border-[#e2e0d8] rounded-xl focus-visible:ring-blue-500"
+                      className="h-10 text-sm bg-[#faf9f5] border-[#e2e0d8] rounded-xl focus-visible:ring-1 focus-visible:ring-[#2d4436] focus-visible:border-[#2d4436] shadow-2xs"
                     />
                   </div>
                 </div>
 
-                {/* Compact Industry Grid (Matte Pastel Selected States) */}
-                <div className="space-y-1.5 pt-0.5">
-                  <label className="text-xs font-medium text-neutral-700 block">
+                {/* Industry Domain Grid */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-neutral-800 block">
                     Select Industry Domain
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {industryList.map((ind) => {
                       const isSelected = quiz.industry === ind.id;
                       return (
@@ -424,10 +404,10 @@ export default function OnboardingPage() {
                           key={ind.id}
                           type="button"
                           onClick={() => setQuiz({ ...quiz, industry: ind.id })}
-                          className={`py-2 px-2 rounded-xl border text-xs transition-all text-center cursor-pointer ${
+                          className={`py-2.5 px-3 rounded-xl border text-xs font-medium transition-all text-center cursor-pointer ${
                             isSelected
-                              ? "bg-[#edf5f0] text-emerald-900 border-emerald-400 font-semibold shadow-2xs ring-1 ring-emerald-300"
-                              : "bg-[#faf9f5] hover:bg-[#f3f0e8] border-[#e2e0d8] text-neutral-700 font-normal"
+                              ? "bg-[#e8f1eb] text-[#1a452d] border-[#9dcca9] font-semibold ring-1 ring-[#9dcca9]/60 shadow-2xs"
+                              : "bg-[#faf9f5] hover:bg-[#f3f0e8] border-[#e2e0d8] text-neutral-700 hover:border-neutral-300"
                           }`}
                         >
                           {ind.label}
@@ -437,27 +417,27 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                {/* Clean, Simple 'Other' Option (Only Brand Type & Explanation) */}
+                {/* Clean, Simple 'Other' Option */}
                 {quiz.industry === "other" && (
-                  <div className="p-3.5 rounded-xl bg-[#faf9f5] border border-[#e2e0d8] space-y-2.5 animate-in fade-in duration-200">
-                    <div className="text-xs font-semibold text-neutral-800">
+                  <div className="p-4 rounded-xl bg-[#faf9f5] border border-[#e2e0d8] space-y-3">
+                    <div className="text-xs font-semibold text-neutral-900">
                       Tell us about your brand:
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-medium text-neutral-600 block mb-1">
-                        What is your brand or business type? *
+                      <label className="text-xs font-medium text-neutral-700 block mb-1">
+                        What is your brand or business type? <span className="text-red-500">*</span>
                       </label>
                       <Input
                         placeholder="e.g. Luxury Car Detailing, Custom Jewelry, Boutique SaaS"
                         value={otherBrandType}
                         onChange={(e) => setOtherBrandType(e.target.value)}
-                        className="h-8 text-xs bg-white border-[#e2e0d8] rounded-lg focus-visible:ring-blue-500"
+                        className="h-9 text-xs bg-white border-[#e2e0d8] rounded-lg focus-visible:ring-1 focus-visible:ring-[#2d4436]"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-medium text-neutral-600 block mb-1">
+                      <label className="text-xs font-medium text-neutral-700 block mb-1">
                         Brief explanation of what you do
                       </label>
                       <textarea
@@ -465,19 +445,21 @@ export default function OnboardingPage() {
                         placeholder="e.g. We provide ceramic coating and detailing for luxury cars and need an automated bot to answer pricing and book service appointments."
                         value={otherExplanation}
                         onChange={(e) => setOtherExplanation(e.target.value)}
-                        className="w-full p-2 rounded-lg border border-[#e2e0d8] bg-white text-xs text-neutral-800 focus:outline-none focus:ring-1 focus:ring-blue-500 font-synthio-body"
+                        className="w-full p-2.5 rounded-lg border border-[#e2e0d8] bg-white text-xs text-neutral-800 focus:outline-none focus:ring-1 focus:ring-[#2d4436]"
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Primary Project Track Selector (Matte Pastel Selected State) */}
-                <div className="space-y-1.5 pt-0.5">
-                  <label className="text-xs font-medium text-neutral-700 flex items-center justify-between">
-                    <span>Select Project Track *</span>
-                    <span className="text-[10px] text-blue-700 font-synthio-mono">Choose Build Scope</span>
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {/* Project Track Selector */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-neutral-800">
+                      Select Project Track <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-[11px] text-neutral-500 font-medium">Choose Build Scope</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     {[
                       {
                         id: "automations",
@@ -512,25 +494,31 @@ export default function OnboardingPage() {
                               setQuiz({ ...quiz, hasWebsite: "No" });
                             }
                           }}
-                          className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                          className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
                             isSelected
-                              ? "bg-[#eff6ff] text-neutral-900 border-blue-400 shadow-2xs ring-1 ring-blue-300"
-                              : "bg-[#faf9f5] hover:bg-[#f3f0e8] border-[#e2e0d8] text-neutral-800"
+                              ? "bg-[#edf4fb] text-[#133252] border-[#a9c9ee] ring-1 ring-[#a9c9ee]/70 shadow-2xs"
+                              : "bg-[#faf9f5] hover:bg-[#f3f0e8] border-[#e2e0d8] text-neutral-800 hover:border-neutral-300"
                           }`}
                         >
-                          <div className="flex items-center justify-between mb-1">
-                            <Icon className={`size-3.5 ${isSelected ? "text-blue-600" : "text-neutral-500"}`} />
-                            <span
-                              className={`text-[9px] font-synthio-mono px-1.5 py-0.5 rounded-md font-medium ${
-                                isSelected ? "bg-blue-100 text-blue-800 border border-blue-200" : "bg-[#e2e0d8] text-neutral-600"
-                              }`}
-                            >
-                              {tr.tag}
-                            </span>
-                          </div>
-                          <div className="font-synthio-heading font-semibold text-xs text-neutral-900">{tr.title}</div>
-                          <div className="text-[10px] mt-0.5 leading-snug text-neutral-500">
-                            {tr.desc}
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className={`p-1.5 rounded-lg ${isSelected ? "bg-[#d8e8f8] text-[#1e40af]" : "bg-[#f0ede6] text-neutral-600"}`}>
+                                <Icon className="size-4" />
+                              </div>
+                              <span
+                                className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                                  isSelected ? "bg-[#dbeafe] text-[#1e40af] border border-[#bedcfc]" : "bg-[#f0ede6] text-neutral-600"
+                                }`}
+                              >
+                                {tr.tag}
+                              </span>
+                            </div>
+                            <div className={`font-semibold text-xs ${isSelected ? "text-[#0f243d]" : "text-neutral-900"}`}>
+                              {tr.title}
+                            </div>
+                            <div className={`text-[11px] mt-1 leading-snug ${isSelected ? "text-[#39567a]" : "text-neutral-500"}`}>
+                              {tr.desc}
+                            </div>
                           </div>
                         </div>
                       );
@@ -538,21 +526,21 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                {/* Team Size (Matte Pastel Selected State) */}
-                <div className="space-y-1 pt-0.5">
-                  <label className="text-xs font-medium text-neutral-700 block">
+                {/* Team Size */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-neutral-800 block">
                     Team Size
                   </label>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-4 gap-2">
                     {["Solo", "2-5", "6-20", "20+"].map((size) => (
                       <button
                         key={size}
                         type="button"
                         onClick={() => setQuiz({ ...quiz, teamSize: size })}
-                        className={`h-8 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                        className={`h-9 rounded-xl text-xs font-medium transition-all cursor-pointer border ${
                           quiz.teamSize === size
-                            ? "bg-[#edf5f0] text-emerald-900 border border-emerald-400 font-semibold shadow-2xs ring-1 ring-emerald-300"
-                            : "bg-[#faf9f5] hover:bg-[#f3f0e8] border border-[#e2e0d8] text-neutral-700"
+                            ? "bg-[#e8f1eb] text-[#1a452d] border-[#9dcca9] font-semibold ring-1 ring-[#9dcca9]/60 shadow-2xs"
+                            : "bg-[#faf9f5] hover:bg-[#f3f0e8] border-[#e2e0d8] text-neutral-700"
                         }`}
                       >
                         {size}
@@ -561,27 +549,16 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                {/* Bottom Step Navigation Bar */}
-                <div className="pt-3 flex items-center justify-between border-t border-[#f0ede6]">
-                  <span className="text-xs font-synthio-mono text-neutral-400">
+                {/* Bottom Step Navigation */}
+                <div className="pt-4 flex items-center justify-between border-t border-[#f0ede6]">
+                  <span className="text-xs text-neutral-400 font-medium">
                     Step 01 of 06
                   </span>
-
-                  <div className="flex items-center gap-1.5">
-                    {stages.map((_, dotIdx) => (
-                      <div
-                        key={dotIdx}
-                        className={`h-1.5 rounded-full transition-all ${
-                          step === dotIdx + 1 ? "w-5 bg-neutral-700" : "w-1.5 bg-neutral-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
 
                   <button
                     type="button"
                     onClick={handleNextFromBasics}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-synthio-mono font-medium transition-all cursor-pointer shadow-xs"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2a4534] hover:bg-[#203628] text-[#f2f7f3] text-xs font-semibold transition-all cursor-pointer shadow-2xs active:scale-[0.98] border border-[#243c2c]"
                   >
                     <span>Next Phase</span>
                     <ChevronRight className="size-3.5" />
@@ -589,86 +566,142 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Right Column: Architectural Blueprint Matte Pastel Card (NO Harsh Black!) */}
-              <div className="lg:col-span-5">
-                <div className="rounded-2xl bg-[#faf9f5] p-4 text-neutral-900 font-synthio-mono text-xs border border-[#e3e0d8] shadow-2xs space-y-3">
-                  {/* Blueprint Card Header */}
-                  <div className="flex items-center justify-between pb-2 border-b border-[#e5e2da]">
-                    <div className="flex items-center gap-2">
-                      <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
-                      <span className="text-[11px] text-neutral-700 font-bold tracking-wider uppercase">
-                        Architectural Blueprint
-                      </span>
+              {/* Right Column: Clean, Real Live Preview Card (Light Matte Colors, No BS!) */}
+              <div className="lg:col-span-5 sticky top-6">
+                <div className="rounded-2xl bg-[#faf9f5] p-5 sm:p-6 text-neutral-900 border border-[#e2e0d8] shadow-xs space-y-4">
+                  {/* Card Header: Live Workspace Identity */}
+                  <div className="flex items-center justify-between pb-3.5 border-b border-[#e8e5dc]">
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-xl bg-[#e3ecf5] text-[#1a3f61] border border-[#bfd5e8] font-bold flex items-center justify-center text-sm tracking-tight shadow-2xs">
+                        {quiz.businessName.trim() ? quiz.businessName.trim().charAt(0).toUpperCase() : "A"}
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm text-neutral-900 leading-tight">
+                          {quiz.businessName.trim() || "Your Organization"}
+                        </div>
+                        <div className="text-[11px] text-neutral-500 font-medium mt-0.5">
+                          {quiz.industry === "other" ? (otherBrandType || "Custom Industry") : currentIndustry.label} · {quiz.city.trim() || "Pan-India"}
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-[10px] text-neutral-400 font-mono">v2.4</span>
-                  </div>
-
-                  {/* Matte Pastel Infrastructure Badges */}
-                  <div>
-                    <span className="text-neutral-500 text-[10px] block mb-1.5 font-medium">
-                      AI Agent Infrastructure
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#e8f3ec] text-[#1e5233] border border-[#bad9c3] font-semibold">
+                      Active
                     </span>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      <div className="p-2 rounded-xl bg-white border border-[#e2e0d8] text-center">
-                        <span className="block size-2.5 rounded-full bg-slate-600 mx-auto mb-1" />
-                        <span className="text-[10px] text-neutral-800 font-bold block">Kernel</span>
-                        <span className="text-[9px] text-neutral-400">v2.4</span>
+                  </div>
+
+                  {/* Contextual Live Preview based on track */}
+                  {serviceTrack === "automations" && (
+                    <div className="space-y-3">
+                      <div className="text-[11px] font-semibold text-neutral-600 uppercase tracking-wider">
+                        Live Interaction Simulation
                       </div>
-                      <div className="p-2 rounded-xl bg-white border border-[#e2e0d8] text-center">
-                        <span className="block size-2.5 rounded-full bg-amber-500 mx-auto mb-1" />
-                        <span className="text-[10px] text-amber-800 font-bold block">Voice</span>
-                        <span className="text-[9px] text-neutral-400">&lt;180ms</span>
+                      
+                      <div className="bg-white rounded-xl p-3.5 border border-[#e2e0d8] space-y-2.5 shadow-2xs">
+                        <div className="flex items-start gap-2">
+                          <div className="size-5 rounded-full bg-[#ece8dd] text-neutral-600 flex items-center justify-center text-[10px] shrink-0 font-medium">
+                            L
+                          </div>
+                          <div className="bg-[#f5f3ec] text-neutral-800 border border-[#e6e2d6] text-xs rounded-2xl rounded-tl-none px-3 py-2 leading-relaxed">
+                            Looking to enquire about pricing and book a consultation.
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2 justify-end">
+                          <div className="bg-[#e8f2ea] text-[#18422a] border border-[#b2d9bd] text-xs rounded-2xl rounded-tr-none px-3.5 py-2.5 leading-relaxed max-w-[85%]">
+                            {currentIndustry.greeting}
+                          </div>
+                          <div className="size-5 rounded-full bg-[#d0e5d7] text-[#18422a] border border-[#b2d9bd] flex items-center justify-center text-[10px] shrink-0 font-bold">
+                            A
+                          </div>
+                        </div>
+
+                        <div className="pt-1 flex items-center justify-between text-[10px] text-neutral-500 border-t border-neutral-100">
+                          <span className="flex items-center gap-1 text-[#1e5233] font-semibold">
+                            <CheckCircle2 className="size-3" /> Auto-qualified
+                          </span>
+                          <span className="text-[#3b597c] font-medium">WhatsApp & Voice Ready</span>
+                        </div>
                       </div>
-                      <div className="p-2 rounded-xl bg-white border border-[#e2e0d8] text-center">
-                        <span className="block size-2.5 rounded-full bg-emerald-500 mx-auto mb-1" />
-                        <span className="text-[10px] text-emerald-800 font-bold block">WhatsApp</span>
-                        <span className="text-[9px] text-neutral-400">Instant</span>
+                    </div>
+                  )}
+
+                  {serviceTrack === "website_request" && (
+                    <div className="space-y-3">
+                      <div className="text-[11px] font-semibold text-neutral-600 uppercase tracking-wider">
+                        Sprint Deliverables
                       </div>
-                      <div className="p-2 rounded-xl bg-white border border-[#e2e0d8] text-center">
-                        <span className="block size-2.5 rounded-full bg-blue-500 mx-auto mb-1" />
-                        <span className="text-[10px] text-blue-800 font-bold block">Calendar</span>
-                        <span className="text-[9px] text-neutral-400">Auto-Lock</span>
+                      
+                      <div className="bg-white rounded-xl p-3.5 border border-[#e2e0d8] space-y-2 shadow-2xs">
+                        <div className="flex items-center justify-between text-xs pb-2 border-b border-neutral-100">
+                          <span className="text-neutral-500">Domain</span>
+                          <span className="font-mono font-medium text-neutral-800">
+                            {quiz.businessName ? quiz.businessName.toLowerCase().replace(/[^a-z0-9]/g, "") + ".com" : "yourbrand.com"}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs pb-2 border-b border-neutral-100">
+                          <span className="text-neutral-500">Delivery SLA</span>
+                          <span className="font-semibold text-[#1e5233]">7-Day Express Sprint</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-neutral-500">Includes</span>
+                          <span className="text-neutral-800 font-medium">Full Copy, Design & Code</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {serviceTrack === "custom_saas" && (
+                    <div className="space-y-3">
+                      <div className="text-[11px] font-semibold text-neutral-600 uppercase tracking-wider">
+                        Custom Product Architecture
+                      </div>
+                      
+                      <div className="bg-white rounded-xl p-3.5 border border-[#e2e0d8] space-y-2 shadow-2xs">
+                        <div className="flex items-center justify-between text-xs pb-2 border-b border-neutral-100">
+                          <span className="text-neutral-500">Architecture</span>
+                          <span className="font-mono text-neutral-800">Next.js + Postgres + Prisma</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs pb-2 border-b border-neutral-100">
+                          <span className="text-neutral-500">Authentication</span>
+                          <span className="text-neutral-800 font-medium">Multi-tenant RBAC</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-neutral-500">Billing Engine</span>
+                          <span className="text-neutral-800 font-medium">Razorpay / Stripe Subscriptions</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Included Highlights */}
+                  <div className="space-y-2 pt-1">
+                    <div className="text-[11px] font-semibold text-neutral-600 uppercase tracking-wider">
+                      Included with Atom
+                    </div>
+                    <div className="space-y-1.5 text-xs text-neutral-600">
+                      <div className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#1e5233] shrink-0" />
+                        <span>Instant lead capture & WhatsApp bot qualifier</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#1e5233] shrink-0" />
+                        <span>Automated appointment booking & calendar sync</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#1e5233] shrink-0" />
+                        <span>Direct CRM synchronization & lead alerts</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#1e5233] shrink-0" />
+                        <span>Human engineering review before live rollout</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* AI Persona Details in Light Matte Card */}
-                  <div className="p-3 rounded-xl bg-white border border-[#e2e0d8] space-y-1.5">
-                    <div className="flex justify-between items-center text-[11px]">
-                      <span className="text-neutral-500">Assigned Model:</span>
-                      <span className="text-neutral-800 font-semibold">
-                        {quiz.businessName ? `${quiz.businessName} AI` : currentIndustry.persona}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[11px]">
-                      <span className="text-neutral-500">Industry:</span>
-                      <span className="text-emerald-700 font-medium">
-                        {quiz.industry === "other" ? (otherBrandType || "Custom Niche") : currentIndustry.label}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[11px]">
-                      <span className="text-neutral-500">Voice Cadence:</span>
-                      <span className="text-blue-700 font-medium">Indian English / Hinglish</span>
-                    </div>
-                  </div>
-
-                  {/* Inbound Greeting Cadence */}
-                  <div className="p-2.5 rounded-xl bg-white border border-[#e2e0d8] space-y-1">
-                    <div className="text-[10px] text-neutral-500 uppercase flex items-center gap-1">
-                      <Volume2 className="size-3 text-neutral-500" />
-                      <span>Inbound Greeting Cadence</span>
-                    </div>
-                    <p className="text-[11px] italic text-neutral-700 leading-relaxed font-synthio-body">
-                      &ldquo;{currentIndustry.greeting}&rdquo;
-                    </p>
-                  </div>
-
-                  {/* Quality Assurance Footer */}
-                  <div className="flex justify-between items-center pt-0.5 text-[11px]">
-                    <span className="text-neutral-500">Configuration Status</span>
-                    <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                      <Check className="size-3" /> 100% Calibrated & Ready
-                    </span>
+                  {/* Deployment note */}
+                  <div className="p-2.5 rounded-xl bg-[#f5f3ec] border border-[#e5e1d4] text-[11px] text-neutral-700 flex items-center justify-between">
+                    <span className="text-neutral-500 font-medium">⚡ Deployment SLA:</span>
+                    <span className="font-semibold text-neutral-900">~24–48 Hours</span>
                   </div>
                 </div>
               </div>
