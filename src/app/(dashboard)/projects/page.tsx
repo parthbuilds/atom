@@ -190,31 +190,31 @@ _Sent via Atom Client Delivery Engine_`;
             Track Website Requests and Custom SaaS builds, log tangible milestones, and share real-time progress updates with clients.
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0 flex-nowrap">
+        <div className="flex items-center gap-2.5 shrink-0 flex-nowrap">
           <Link href="/onboarding/website" className="shrink-0">
-            <Button size="sm" className="h-8.5 px-3 text-xs gap-1.5 font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs whitespace-nowrap">
-              <Plus className="h-3.5 w-3.5" /> Onboard Project
+            <Button
+              className="h-9 px-4 text-xs font-semibold gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs rounded-xl whitespace-nowrap transition-all"
+            >
+              <Plus className="h-4 w-4" /> Onboard Project
             </Button>
           </Link>
           {activeProject && (
             <>
               <Button
-                size="sm"
                 variant="outline"
                 onClick={() => {
                   setShareProject(activeProject);
                   setShowShareModal(true);
                 }}
-                className="h-8.5 px-3 text-xs gap-1.5 font-semibold border-border/80 hover:bg-muted/60 whitespace-nowrap shrink-0"
+                className="h-9 px-4 text-xs font-semibold gap-2 border-border/90 bg-white hover:bg-muted/60 text-slate-800 shadow-xs rounded-xl whitespace-nowrap shrink-0 transition-all"
               >
-                <Share2 className="h-3.5 w-3.5 text-primary" /> Share Update
+                <Share2 className="h-4 w-4 text-blue-600" /> Share Update
               </Button>
               <Button
-                size="sm"
                 onClick={() => setShowUpdateModal(true)}
-                className="h-8.5 px-3 text-xs gap-1.5 font-semibold bg-primary hover:bg-primary/90 text-white shadow-xs whitespace-nowrap shrink-0"
+                className="h-9 px-4 text-xs font-semibold gap-2 bg-blue-600 hover:bg-blue-500 text-white shadow-xs rounded-xl whitespace-nowrap shrink-0 transition-all"
               >
-                <Plus className="h-3.5 w-3.5" /> Post Update
+                <Plus className="h-4 w-4" /> Post Update
               </Button>
             </>
           )}
@@ -295,20 +295,19 @@ _Sent via Atom Client Delivery Engine_`;
                   <Progress value={activeProject.progressPct} className="h-2" />
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <Button
-                    size="sm"
                     variant="outline"
                     onClick={() => handleCopyShareLink(activeProject)}
-                    className="text-xs gap-1.5 h-8"
+                    className="text-xs font-semibold gap-2 h-9 px-4 rounded-xl border-border bg-card hover:bg-muted/70 text-foreground shadow-xs"
                   >
-                    {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copiedLink ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                     {copiedLink ? "Link Copied!" : "Client Portal Link"}
                   </Button>
                   {activeProject.stagingUrl && (
                     <a href={activeProject.stagingUrl} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="text-xs gap-1 h-8 bg-emerald-600 hover:bg-emerald-500 text-white">
-                        <Globe className="h-3.5 w-3.5" /> Staging <ExternalLink className="h-3 w-3" />
+                      <Button className="text-xs font-semibold gap-1.5 h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs">
+                        <Globe className="h-4 w-4" /> Staging <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </a>
                   )}
@@ -389,11 +388,10 @@ _Sent via Atom Client Delivery Engine_`;
                     </CardDescription>
                   </div>
                   <Button
-                    size="sm"
                     onClick={() => setShowUpdateModal(true)}
-                    className="text-xs gap-1 bg-primary hover:bg-primary/90 text-white"
+                    className="text-xs font-semibold gap-1.5 h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-xs"
                   >
-                    <Plus className="h-3.5 w-3.5" /> Add Entry
+                    <Plus className="h-4 w-4" /> Add Entry
                   </Button>
                 </div>
               </CardHeader>
