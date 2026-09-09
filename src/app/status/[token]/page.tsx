@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AtomOrbitO } from "@/components/ui/atom-wordmark";
 import {
@@ -23,9 +22,8 @@ import {
   ArrowRight,
   ShieldCheck,
   FileCheck,
-  Building2,
-  Cpu,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
 
 export default function ClientProjectStatusPage() {
@@ -37,45 +35,39 @@ export default function ClientProjectStatusPage() {
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const fetchProjectStatus = async () => {
+  useEffect(() => {
     if (!token) return;
     setLoading(true);
-    try {
-      const res = await fetch(`/api/projects?shareToken=${token}`);
-      if (res.ok) {
-        const data = await res.json();
-        setProject(data.project);
-      } else {
-        setError("Project not found or link has expired.");
-      }
-    } catch (err: any) {
-      setError(err.message || "Failed to load project status.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProjectStatus();
+    fetch(`/api/projects?shareToken=${token}`)
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          setProject(data.project);
+        } else {
+          setError("Project not found or link has expired.");
+        }
+      })
+      .catch((err) => setError(err.message || "Failed to load."))
+      .finally(() => setLoading(false));
   }, [token]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0d14] text-neutral-100 flex flex-col items-center justify-center p-4">
-        <RefreshCw className="h-8 w-8 text-primary animate-spin mb-3" />
-        <p className="text-sm font-medium text-neutral-400">Loading live project status...</p>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-3">
+        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <p className="text-sm text-slate-500 font-medium">Loading live project status…</p>
       </div>
     );
   }
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-[#0a0d14] text-neutral-100 flex flex-col items-center justify-center p-4 text-center">
-        <div className="h-12 w-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mb-3">
-          <Clock className="h-6 w-6" />
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-3 p-6 text-center">
+        <div className="h-14 w-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center">
+          <Clock className="h-6 w-6 text-red-400" />
         </div>
-        <h1 className="text-xl font-bold">Invalid Project Status Link</h1>
-        <p className="text-xs text-neutral-400 max-w-sm mt-1">{error || "Please check with your agency team for an updated status URL."}</p>
+        <h1 className="text-xl font-bold text-slate-900">Invalid Project Link</h1>
+        <p className="text-sm text-slate-500 max-w-sm">{error || "Please check with your agency team for an updated status URL."}</p>
       </div>
     );
   }
@@ -95,20 +87,20 @@ export default function ClientProjectStatusPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0d14] text-neutral-100 font-sans selection:bg-primary selection:text-white">
-      {/* Top Banner */}
-      <header className="border-b border-neutral-800 bg-[#0d111a]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* ── Sticky Header ── */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center text-primary shadow-xs">
-            <AtomOrbitO className="size-4.5" dark={true} />
+          <div className="h-8 w-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+            <AtomOrbitO className="size-4" dark={false} />
           </div>
           <div>
-            <div className="text-xs font-mono uppercase tracking-wider text-neutral-400">Client Delivery Portal</div>
-            <div className="text-sm font-bold text-neutral-100 flex items-center gap-2">
-              {project.org?.name || "Client Project"}
-              <Badge variant="outline" className="text-[10px] py-0 px-2 border-primary/40 text-primary">
+            <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Client Delivery Portal</p>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-800 leading-tight">{project.org?.name || "Client Project"}</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-600 font-mono font-medium">
                 {project.type === "CUSTOM_SAAS" ? "Custom SaaS Build" : "1-Week Website Sprint"}
-              </Badge>
+              </span>
             </div>
           </div>
         </div>
@@ -118,15 +110,17 @@ export default function ClientProjectStatusPage() {
             size="sm"
             variant="outline"
             onClick={handleCopyLink}
-            className="text-xs gap-1.5 h-8 border-neutral-700 bg-neutral-900/80 hover:bg-neutral-800"
+            className="text-xs gap-1.5 h-8 border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
           >
-            {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 text-neutral-400" />}
-            {copiedLink ? "Link Copied!" : "Share Link"}
+            {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5 text-slate-400" />}
+            {copiedLink ? "Copied!" : "Share Link"}
           </Button>
           {project.stagingUrl && (
             <a href={project.stagingUrl} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" className="text-xs gap-1.5 h-8 bg-primary hover:bg-primary/90 text-white font-medium">
-                <Globe className="h-3.5 w-3.5" /> Staging Preview <ExternalLink className="h-3 w-3" />
+              <Button size="sm" className="text-xs gap-1.5 h-8 bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                <Globe className="h-3.5 w-3.5" />
+                Staging Preview
+                <ExternalLink className="h-3 w-3" />
               </Button>
             </a>
           )}
@@ -134,245 +128,267 @@ export default function ClientProjectStatusPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Hero Section */}
-        <div className="rounded-2xl border border-neutral-800 bg-gradient-to-b from-neutral-900/90 to-[#0f1422] p-6 sm:p-8 relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        {/* ── Hero Card ── */}
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          {/* Status pill top bar */}
+          <div className="px-6 pt-6 pb-0">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-mono font-medium">
+              <Sparkles className="h-3 w-3" />
+              Process Status: {project.status}
+            </span>
+          </div>
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-            <div className="space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-mono">
-                <Sparkles className="h-3.5 w-3.5" /> Process Status: {project.status}
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">{project.title}</h1>
-              <p className="text-sm text-neutral-300 leading-relaxed">{project.description}</p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-6 py-5">
+            {/* Left: title + desc */}
+            <div className="space-y-2 max-w-xl">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                {project.title}
+              </h1>
+              <p className="text-sm text-slate-500 leading-relaxed">{project.description}</p>
             </div>
 
-            {/* Quick Metrics */}
-            <div className="bg-black/40 border border-neutral-800/80 rounded-xl p-5 min-w-[240px] space-y-3">
+            {/* Right: progress widget */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 min-w-[220px] space-y-3 shrink-0">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-400">Total Completion</span>
-                <span className="font-mono font-bold text-primary text-sm">{project.progressPct}%</span>
+                <span className="text-slate-500">Total Completion</span>
+                <span className="font-mono font-bold text-blue-600 text-base">{project.progressPct}%</span>
               </div>
-              <Progress value={project.progressPct} className="h-2 bg-neutral-800" />
-              <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-1">
-                <span>
-                  {completedMilestones} of {totalMilestones} Milestones
-                </span>
-                <span className="text-emerald-400 font-medium">Active Sprint</span>
+              <Progress value={project.progressPct} className="h-2" />
+              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <span>{completedMilestones} of {totalMilestones} Milestones</span>
+                <span className="text-emerald-600 font-semibold">Active Sprint</span>
               </div>
             </div>
           </div>
 
-          {/* Staging & Tech Specs Banner */}
-          <div className="mt-6 pt-6 border-t border-neutral-800/80 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div className="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800">
-              <span className="text-neutral-400 uppercase font-mono text-[10px] block mb-1">Target Audience</span>
-              <span className="font-medium text-neutral-200">{project.targetAudience || "Core customers"}</span>
-            </div>
-            <div className="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800">
-              <span className="text-neutral-400 uppercase font-mono text-[10px] block mb-1">Design Aesthetic</span>
-              <span className="font-medium text-neutral-200">{project.designPreferences || "Modern Clean & Responsive"}</span>
-            </div>
-            <div className="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800">
-              <span className="text-neutral-400 uppercase font-mono text-[10px] block mb-1">Tech Stack</span>
-              <span className="font-medium text-neutral-200">{project.techStack || "Next.js 14, Tailwind, Sarvam Voice"}</span>
-            </div>
+          {/* Bottom specs strip */}
+          <div className="border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
+            {[
+              { label: "Target Audience", value: project.targetAudience || "Core customers" },
+              { label: "Design Aesthetic", value: project.designPreferences || "Modern Clean & Responsive" },
+              { label: "Tech Stack", value: project.techStack || "Next.js 14, Tailwind, Sarvam Voice" },
+            ].map((item) => (
+              <div key={item.label} className="px-5 py-4">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1">{item.label}</p>
+                <p className="text-sm font-semibold text-slate-700">{item.value}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Two-Column Grid: Milestones & Features */}
+        {/* ── Two-column grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Milestones Roadmap (1 col) */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold flex items-center gap-2">
-                <Layers className="h-4 w-4 text-primary" /> Delivery Roadmap
-              </h2>
-              <span className="text-xs text-neutral-400 font-mono">
-                {completedMilestones}/{totalMilestones}
-              </span>
-            </div>
-
-            <div className="space-y-2.5">
-              {(project.milestones || []).map((m: any, idx: number) => {
-                const isCompleted = m.status === "COMPLETED";
-                const isInProgress = m.status === "IN_PROGRESS";
-
-                return (
-                  <div
-                    key={m.id}
-                    className={`p-3.5 rounded-xl border transition-all ${
-                      isCompleted
-                        ? "bg-neutral-900/50 border-emerald-500/30"
-                        : isInProgress
-                        ? "bg-primary/10 border-primary/40 shadow-sm"
-                        : "bg-neutral-900/30 border-neutral-800/80 opacity-70"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5">
-                        {isCompleted ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                        ) : isInProgress ? (
-                          <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                        ) : (
-                          <Clock className="h-4 w-4 text-neutral-500" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold text-neutral-200">{m.title}</div>
-                        <div className="flex items-center justify-between mt-1 text-[10px]">
-                          <span
-                            className={
-                              isCompleted
-                                ? "text-emerald-400 font-medium"
-                                : isInProgress
-                                ? "text-primary font-medium"
-                                : "text-neutral-500"
-                            }
-                          >
-                            {isCompleted ? "Completed ✓" : isInProgress ? "Currently In Progress" : "Upcoming Phase"}
-                          </span>
-                          {m.dueDate && <span className="text-neutral-400 font-mono">{m.dueDate}</span>}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Scope / Features Card */}
-            {parsedFeatures.length > 0 && (
-              <Card className="bg-neutral-900/60 border-neutral-800 mt-4">
-                <CardHeader className="p-4 pb-2">
-                  <CardTitle className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Included Project Scope
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-1 space-y-1.5">
-                  {parsedFeatures.map((f: string, i: number) => (
-                    <div key={i} className="text-xs text-neutral-300 flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      <span>{f}</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Activity Timeline: "What We Have Done" (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-bold flex items-center gap-2">
-                  <Code2 className="h-4 w-4 text-primary" /> What We Have Done (Activity Changelog)
+          {/* Left: Delivery Roadmap */}
+          <div className="lg:col-span-1 space-y-5">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <Layers className="h-4 w-4 text-blue-500" />
+                  Delivery Roadmap
                 </h2>
-                <p className="text-xs text-neutral-400 mt-0.5">Chronological updates and tangible deliverables shipped by the engineering team.</p>
+                <span className="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {completedMilestones}/{totalMilestones}
+                </span>
               </div>
-              <Badge variant="secondary" className="text-xs font-mono bg-neutral-800 text-neutral-300">
-                {(project.updates || []).length} Updates Posted
-              </Badge>
-            </div>
 
-            <div className="space-y-4">
-              {(project.updates || []).length === 0 ? (
-                <div className="p-8 rounded-xl border border-dashed border-neutral-800 text-center text-xs text-neutral-500">
-                  No development changelog updates posted yet. Next sprint update will appear here.
-                </div>
-              ) : (
-                (project.updates || []).map((update: any) => {
-                  let deliverables: string[] = [];
-                  try {
-                    if (update.deliverables) deliverables = JSON.parse(update.deliverables);
-                  } catch {}
+              <div className="p-4 space-y-2">
+                {(project.milestones || []).map((m: any) => {
+                  const isCompleted = m.status === "COMPLETED";
+                  const isInProgress = m.status === "IN_PROGRESS";
 
                   return (
                     <div
-                      key={update.id}
-                      className="p-5 rounded-xl border border-neutral-800 bg-[#0d121c]/70 hover:border-neutral-700 transition-all space-y-3"
+                      key={m.id}
+                      className={`p-3.5 rounded-xl border transition-all ${
+                        isCompleted
+                          ? "bg-emerald-50 border-emerald-200"
+                          : isInProgress
+                          ? "bg-blue-50 border-blue-300 shadow-sm"
+                          : "bg-white border-slate-200 opacity-60"
+                      }`}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-800/80 pb-3">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            className={`text-[10px] font-mono uppercase tracking-wider ${
-                              update.phase === "LAUNCH"
-                                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                                : update.phase === "INTEGRATION"
-                                ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30"
-                                : "bg-primary/20 text-primary border-primary/30"
-                            }`}
-                          >
-                            {update.phase}
-                          </Badge>
-                          <span className="font-bold text-sm text-neutral-100">{update.title}</span>
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 shrink-0">
+                          {isCompleted ? (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                          ) : isInProgress ? (
+                            <div className="h-4 w-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                          ) : (
+                            <Clock className="h-4 w-4 text-slate-300" />
+                          )}
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] text-neutral-400 font-mono">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(update.createdAt)}
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-neutral-300 leading-relaxed font-sans">{update.description}</p>
-
-                      {deliverables.length > 0 && (
-                        <div className="pt-1">
-                          <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5 flex items-center gap-1">
-                            <FileCheck className="h-3 w-3 text-emerald-400" /> Tangible Deliverables Shipped:
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {deliverables.map((item, idx) => (
-                              <span
-                                key={idx}
-                                className="px-2.5 py-1 rounded-md text-[11px] bg-neutral-900 border border-neutral-800 text-neutral-200 flex items-center gap-1.5"
-                              >
-                                <span className="h-1 w-1 rounded-full bg-emerald-400" />
-                                {item}
-                              </span>
-                            ))}
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs font-semibold leading-snug ${
+                            isCompleted ? "text-emerald-800" : isInProgress ? "text-blue-900" : "text-slate-500"
+                          }`}>
+                            {m.title}
+                          </p>
+                          <div className="flex items-center justify-between mt-1 text-[10px]">
+                            <span className={
+                              isCompleted ? "text-emerald-600 font-medium" :
+                              isInProgress ? "text-blue-600 font-medium" :
+                              "text-slate-400"
+                            }>
+                              {isCompleted ? "Completed ✓" : isInProgress ? "Currently in Progress" : "Upcoming Phase"}
+                            </span>
+                            {m.dueDate && (
+                              <span className="text-slate-400 font-mono">{m.dueDate}</span>
+                            )}
                           </div>
                         </div>
-                      )}
-
-                      <div className="text-[10px] text-neutral-500 font-mono text-right pt-1">
-                        Author: {update.authorName || "Atom Engineering Team"}
                       </div>
                     </div>
                   );
-                })
-              )}
+                })}
+              </div>
+            </div>
+
+            {/* Scope card */}
+            {parsedFeatures.length > 0 && (
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
+                  <ShieldCheck className="h-4 w-4 text-blue-500" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Included Project Scope</h3>
+                </div>
+                <div className="p-4 space-y-2">
+                  {parsedFeatures.map((f: string, i: number) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Activity Changelog */}
+          <div className="lg:col-span-2 space-y-5">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <Code2 className="h-4 w-4 text-blue-500" />
+                    What We Have Done
+                  </h2>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Chronological engineering updates & deliverables shipped.</p>
+                </div>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 font-medium">
+                  {(project.updates || []).length} Updates Posted
+                </span>
+              </div>
+
+              <div className="p-4 space-y-3">
+                {(project.updates || []).length === 0 ? (
+                  <div className="py-10 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                    No updates posted yet. Next sprint update will appear here.
+                  </div>
+                ) : (
+                  (project.updates || []).map((update: any) => {
+                    let deliverables: string[] = [];
+                    try {
+                      if (update.deliverables) deliverables = JSON.parse(update.deliverables);
+                    } catch {}
+
+                    const phaseColors: Record<string, string> = {
+                      LAUNCH: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                      INTEGRATION: "bg-indigo-50 text-indigo-700 border-indigo-200",
+                      DESIGN: "bg-purple-50 text-purple-700 border-purple-200",
+                      DISCOVERY: "bg-amber-50 text-amber-700 border-amber-200",
+                      DEVELOPMENT: "bg-blue-50 text-blue-700 border-blue-200",
+                    };
+                    const phaseClass = phaseColors[update.phase] || "bg-slate-50 text-slate-600 border-slate-200";
+
+                    return (
+                      <div key={update.id} className="border border-slate-200 rounded-xl overflow-hidden hover:border-slate-300 transition-colors">
+                        {/* Update header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 py-3 bg-slate-50 border-b border-slate-100">
+                          <div className="flex items-center gap-2.5">
+                            <span className={`text-[10px] font-mono uppercase tracking-wide px-2 py-0.5 rounded-md border font-semibold ${phaseClass}`}>
+                              {update.phase}
+                            </span>
+                            <span className="font-bold text-sm text-slate-800">{update.title}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono shrink-0">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(update.createdAt)}
+                          </div>
+                        </div>
+
+                        {/* Body */}
+                        <div className="px-4 py-3 space-y-3">
+                          <p className="text-xs text-slate-600 leading-relaxed">{update.description}</p>
+
+                          {deliverables.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
+                                <FileCheck className="h-3 w-3 text-emerald-500" />
+                                Tangible Deliverables Shipped:
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {deliverables.map((item, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] bg-white border border-slate-200 text-slate-700 font-medium shadow-xs"
+                                  >
+                                    <span className="h-1 w-1 rounded-full bg-emerald-400 shrink-0" />
+                                    {item}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <p className="text-[10px] text-slate-400 font-mono text-right">
+                            Author: {update.authorName || "Atom Platform Engineering"}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Live Staging & Feedback Card */}
-        <div className="rounded-xl border border-neutral-800 bg-[#0e1320] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* ── Footer CTA ── */}
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-neutral-100 flex items-center gap-2">
-              <Globe className="h-4 w-4 text-emerald-400" /> Have questions or revisions on this sprint?
+            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <Globe className="h-4 w-4 text-emerald-500" />
+              Have questions or revision requests?
             </h3>
-            <p className="text-xs text-neutral-400 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Your feedback is directly routed to your assigned full-stack lead for immediate turnaround.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <Button
               size="sm"
               variant="outline"
               onClick={handleCopyLink}
-              className="text-xs border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200"
+              className="text-xs border-slate-200 bg-white hover:bg-slate-50 text-slate-700 gap-1.5"
             >
-              <Share2 className="h-3.5 w-3.5 mr-1" /> Copy Status URL
+              <Share2 className="h-3.5 w-3.5 text-slate-400" />
+              Copy Status URL
             </Button>
             {project.stagingUrl && (
               <a href={project.stagingUrl} target="_blank" rel="noopener noreferrer">
-                <Button size="sm" className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-medium gap-1">
-                  View Staging Preview <ArrowRight className="h-3.5 w-3.5" />
+                <Button size="sm" className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium gap-1.5">
+                  View Staging Preview
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </a>
             )}
           </div>
+        </div>
+
+        {/* Powered by footer */}
+        <div className="text-center pb-2">
+          <p className="text-[11px] text-slate-400 font-mono">
+            Powered by <span className="text-slate-600 font-semibold">Atom Platform</span> · Client Delivery Engine
+          </p>
         </div>
       </main>
     </div>
